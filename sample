@@ -1,0 +1,80 @@
+<script lang="ts">
+
+//	Country Map Data for CZE @ level1
+
+	///////////////////////////////////////////////////////////////////////////////////////////
+	//	IMPORTS
+	///////////////////////////////////////////////////////////////////////////////////////////
+
+	// MAP IMPORTS
+	import { feature } from 'topojson-client'
+
+	import { Chart, Svg, GeoPath, Tooltip, Text } from 'layerchart'
+
+	// DATA IMPORTS
+	import { level1CZE } from '$lib/x04MapJSON/CZE/level1CZE'
+
+	///////////////////////////////////////////////////////////////////////////////////////////
+	//	KEY VARIABLES
+	///////////////////////////////////////////////////////////////////////////////////////////
+
+	// ESTABLISH MAP DATA AS FEATURE
+	const data = feature(level1CZE, level1CZE.objects.data)
+
+</script>
+
+<!-- THE COMPONENT MARKUP-->
+
+<div
+	class="h-[300px] sm:h-[300px] md:h-[400px] lg:h-[500px] xl:h-[700px] overflow-hidden rounded-md"
+>
+	<Chart
+		geo={{
+			fitGeojson: data
+		}}
+		padding={{ left: 0, right: 0 }}
+		tooltip={{ mode: "manual" }}
+		let:tooltip
+	>
+		<Svg>
+			<g class="data">
+				{ #each data.features as feature }
+					<GeoPath
+						geojson={ feature }
+						{ tooltip }
+						class="
+						fill-primary-100 dark:fill-primary-900
+						stroke-surface-900 dark:stroke-surface-100 
+						hover:fill-primary-100/30 dark:hover:fill-primary-900/30"
+					/>
+				{ /each }
+			</g>
+
+			<g class="labels pointer-events-none">
+				{ #each data.features as feature }
+					<GeoPath geojson={ feature } let:geoPath>
+						{ @const [x, y] = geoPath.centroid(feature) }
+						<Text
+							x={ x }
+							y={ y }
+							value={ feature.properties.NAME_1 }
+							textAnchor="middle"
+							verticalAnchor="middle"
+							color="gray"
+							class="xl:block hidden text-[11px] [stroke-width:2px] text-surface-900"
+						/>
+
+					</GeoPath>
+
+				{ /each }
+
+			</g>
+
+		</Svg>
+
+		<Tooltip header={(data) => data.properties.NAME_1} let:data />
+
+	</Chart>
+
+</div>
+
